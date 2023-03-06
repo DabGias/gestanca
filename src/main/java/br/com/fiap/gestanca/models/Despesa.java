@@ -1,4 +1,4 @@
-package br.com.models;
+package br.com.fiap.gestanca.models;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
