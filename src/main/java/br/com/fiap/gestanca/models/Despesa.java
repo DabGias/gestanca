@@ -4,16 +4,32 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class Despesa {
+    private Long id;
     private BigDecimal valor;
     private LocalDate data;
     private String descricao;
 
     public Despesa() {}
 
+    public Despesa(Long id, BigDecimal valor, LocalDate data, String descricao) {
+        this.id = id;
+        this.valor = valor;
+        this.data = data;
+        this.descricao = descricao;
+    }
+
     public Despesa(BigDecimal valor, LocalDate data, String descricao) {
         this.valor = valor;
         this.data = data;
         this.descricao = descricao;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public BigDecimal getValor() {
