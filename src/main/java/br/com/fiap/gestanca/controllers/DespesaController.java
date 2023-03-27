@@ -1,85 +1,87 @@
 package br.com.fiap.gestanca.controllers;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import br.com.fiap.gestanca.models.Despesa;
+import br.com.fiap.gestanca.repositories.DespesaRepository;
+import jakarta.validation.Valid;
 
 @RestController
+@RequestMapping("/api/despesas")
 public class DespesaController {
     Logger log = LoggerFactory.getLogger(DespesaController.class);
-    List<Despesa> despesas = new ArrayList<>();
 
-    @GetMapping("/api/despesas")
+    @Autowired
+    DespesaRepository repo;
+
+    @GetMapping
     public List<Despesa> index() {
-        return despesas;
+        return repo.findAll();
     }
 
-    @GetMapping("/api/despesas/{id}")
+    @GetMapping("{id}")
     public ResponseEntity<Despesa> show(@PathVariable Long id) {
         log.info("buscar despesa com id: " + id);
 
-        Optional<Despesa> despesa = despesas.stream().filter((d) -> {
-            return d.getId().equals(id);
-        }).findFirst();
+        Despesa despesa = repo.findById(id).orElseThrow(() -> 
+            new ResponseStatusException(HttpStatus.NOT_FOUND, "despesa não encontrada") 
+        );
 
-        if (despesa.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-
-        return ResponseEntity.ok(despesa.get());
+        return ResponseEntity.ok(despesa);
     }
 
-    @PostMapping("/api/despesas")
-    public ResponseEntity<Despesa> create(@RequestBody Despesa despesa) {
+    @PostMapping
+    public ResponseEntity<Despesa> create(@RequestBody @Valid Despesa despesa, BindingResult result) {
         log.info("cadastrar despesa: " + despesa);
 
-        despesa.setId(despesas.size() + 1l);
-        despesas.add(despesa);
+        repo.save(despesa);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PutMapping("/api/despesas/{id}")
-    public ResponseEntity<Despesa> update(@PathVariable Long id, @RequestBody Despesa despesaAtualizada) {
+    @PutMapping("{id}")
+    public ResponseEntity<Despesa> update(@PathVariable Long id, @RequestBody @Valid Despesa despesaAtualizada) {
         log.info("a despesa com id: " + id + " foi atualizada");
 
-        Optional<Despesa> despesa = despesas.stream().filter((d) -> {
-            return d.getId().equals(id);
-        }).findFirst();
+        Despesa despesa = repo.findById(id).orElseThrow(() -> 
+            new ResponseStatusException(HttpStatus.NOT_FOUND, "despesa não encontrada") 
+        );
 
-        if (despesa.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        BeanUtils.copyProperties(despesaAtualizada, despesa, "id");
 
-        despesas.remove(despesa.get());
-        despesaAtualizada.setId(id);
-        despesas.add(despesaAtualizada);
+        repo.save(despesa);
 
-        return ResponseEntity.ok(despesa.get());
+        return ResponseEntity.ok(despesa);
     }
 
-    @DeleteMapping("/api/despesas/{id}")
+    @DeleteMapping("{id}")
     public ResponseEntity<Despesa> destroy(@PathVariable Long id) {
         log.info("apagar despesa com id: " + id);
 
-        Optional<Despesa> despesa = despesas.stream().filter((d) -> {
-            return d.getId().equals(id);
-        }).findFirst();
+        Optional<Despesa> despesa = repo.findById(id);
 
-        if (despesa.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        if (despesa.isEmpty()) return ResponseEntity.notFound().build();
 
-        despesas.remove(despesa.get());
+        repo.delete(despesa.get());
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.noContent().build();
     }
 }
