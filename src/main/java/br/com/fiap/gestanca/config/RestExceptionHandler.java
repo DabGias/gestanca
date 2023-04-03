@@ -24,7 +24,7 @@ public class RestExceptionHandler {
 
         List<RestErrors> erros = new ArrayList<RestErrors>();
 
-        e.getConstraintViolations().forEach(v -> { erros.add(new RestErrors(v.getPropertyPath().toString(), v.getMessage())); });;
+        e.getConstraintViolations().forEach(v -> { erros.add(new RestErrors(v.getPropertyPath().toString(), v.getMessage())); });
 
         return ResponseEntity.badRequest().body(erros);
     }
