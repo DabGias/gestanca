@@ -1,7 +1,6 @@
 package br.com.fiap.gestanca.controllers;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +26,7 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/despesas")
 public class DespesaController {
-    Logger log = LoggerFactory.getLogger(DespesaController.class);
+    Logger log = LoggerFactory.getLogger(getClass());
 
     @Autowired
     DespesaRepository repo;
@@ -76,11 +75,11 @@ public class DespesaController {
     public ResponseEntity<Despesa> destroy(@PathVariable Long id) {
         log.info("apagar despesa com id: " + id);
 
-        Optional<Despesa> despesa = repo.findById(id);
+        Despesa despesa = repo.findById(id).orElseThrow(() -> 
+            new ResponseStatusException(HttpStatus.NOT_FOUND, "despesa não encontrada") 
+        );
 
-        if (despesa.isEmpty()) return ResponseEntity.notFound().build();
-
-        repo.delete(despesa.get());
+        repo.delete(despesa);
 
         return ResponseEntity.noContent().build();
     }
