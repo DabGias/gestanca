@@ -1,11 +1,13 @@
 package br.com.fiap.gestanca.controllers;
 
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -32,8 +34,8 @@ public class DespesaController {
     DespesaRepository repo;
 
     @GetMapping
-    public List<Despesa> index() {
-        return repo.findAll();
+    public Page<Despesa> index(@PageableDefault(size = 5) Pageable pageable) {        
+        return repo.findAll(pageable);
     }
 
     @GetMapping("{id}")

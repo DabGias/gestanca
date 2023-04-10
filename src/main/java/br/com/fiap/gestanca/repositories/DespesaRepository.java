@@ -1,12 +1,10 @@
 package br.com.fiap.gestanca.repositories;
 
-import java.time.LocalDate;
-import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import br.com.fiap.gestanca.models.Despesa;
 
 public interface DespesaRepository extends JpaRepository<Despesa, Long> {
-    List<Despesa> findByData(LocalDate data);
+    // @Query("select d from Despesa d order by d.id limit ?1 offset ?2")
+    // List<Despesa> findTop(int range, int offset);
 }
