@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -33,20 +37,25 @@ public class DespesaController {
     @Autowired
     DespesaRepository repo;
 
+    @Autowired
+    PagedResourcesAssembler<Despesa> assembler;
+
     @GetMapping
-    public Page<Despesa> index(@PageableDefault(size = 5) Pageable pageable) {        
-        return repo.findAll(pageable);
+    public PagedModel<EntityModel<Despesa>> index(@PageableDefault(size = 5) Pageable pageable, @RequestParam(required = false) String busca) {        
+        Page<Despesa> page = (busca == null) ? repo.findAll(pageable) : repo.findByDescricaoContaining(busca, pageable);
+
+        return assembler.toModel(page);
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Despesa> show(@PathVariable Long id) {
+    public EntityModel<Despesa> show(@PathVariable Long id) {
         log.info("buscar despesa com id: " + id);
 
         Despesa despesa = repo.findById(id).orElseThrow(() -> 
             new ResponseStatusException(HttpStatus.NOT_FOUND, "despesa não encontrada") 
         );
 
-        return ResponseEntity.ok(despesa);
+        return despesa.toModel();
     }
 
     @PostMapping
@@ -55,7 +64,7 @@ public class DespesaController {
 
         repo.save(despesa);
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.created(despesa.toModel().getRequiredLink("self").toUri()).body(despesa);
     }
 
     @PutMapping("{id}")
