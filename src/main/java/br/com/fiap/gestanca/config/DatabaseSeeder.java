@@ -8,10 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 
+import br.com.fiap.gestanca.controllers.UsuarioController;
 import br.com.fiap.gestanca.models.Conta;
 import br.com.fiap.gestanca.models.Despesa;
+import br.com.fiap.gestanca.models.Usuario;
 import br.com.fiap.gestanca.repositories.ContaRepository;
 import br.com.fiap.gestanca.repositories.DespesaRepository;
+import br.com.fiap.gestanca.repositories.UsuarioRepository;
 
 @Configuration
 public class DatabaseSeeder implements CommandLineRunner {
@@ -21,6 +24,9 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     @Autowired
     DespesaRepository repoDespesa;
+
+    @Autowired
+    UsuarioRepository repoUsuario;
     
     @Override
     public void run(String... args) throws Exception {
@@ -54,5 +60,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             Despesa.builder().valor(new BigDecimal(700)).data(LocalDate.now()).descricao("Aluguel").conta(c7).build(),
             Despesa.builder().valor(new BigDecimal(800)).data(LocalDate.now()).descricao("Aluguel").conta(c8).build()
         ));
+
+        repoUsuario.save(Usuario.builder().nome("Gabriel Dias").email("gabrieldias@email.com").senha("1234567890").build());
     }
 }
