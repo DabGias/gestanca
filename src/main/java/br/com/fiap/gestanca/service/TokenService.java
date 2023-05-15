@@ -15,16 +15,20 @@ import br.com.fiap.gestanca.models.TokenJwt;
 public class TokenService {
     
     public TokenJwt generateToken(Credencial credencial) {
-        return new TokenJwt(String.valueOf(
-            JWT.create()
-            .withSubject(credencial.email())
-            .withIssuer("Gestança")
-            .withExpiresAt(Instant.now().plus(2, ChronoUnit.HOURS))
-            .sign(Algorithm.HMAC256("secret"))
-        ));
+        String token = JWT.create()
+        .withSubject(credencial.email())
+        .withIssuer("Gestança")
+        .withExpiresAt(Instant.now().plus(2, ChronoUnit.HOURS))
+        .sign(Algorithm.HMAC256("secret"));
+        
+        return new TokenJwt(token);
     }
 
     public String validar(String token) {
-        return JWT.require(Algorithm.HMAC256("secret")).withIssuer("Gestança").build().verify(token).getSubject();
+        return JWT.require(Algorithm.HMAC256("secret"))
+        .withIssuer("Gestança")
+        .build()
+        .verify(token)
+        .getSubject();
     }
 }

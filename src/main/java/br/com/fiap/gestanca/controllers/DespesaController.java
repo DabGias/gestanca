@@ -3,6 +3,7 @@ package br.com.fiap.gestanca.controllers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,6 +28,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import br.com.fiap.gestanca.models.Despesa;
 import br.com.fiap.gestanca.repositories.DespesaRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 
 @RestController
@@ -41,13 +45,24 @@ public class DespesaController {
     PagedResourcesAssembler<Despesa> assembler;
 
     @GetMapping
-    public PagedModel<EntityModel<Despesa>> index(@PageableDefault(size = 5) Pageable pageable, @RequestParam(required = false) String busca) {        
+    public PagedModel<EntityModel<Despesa>> index(@ParameterObject @PageableDefault(size = 5) Pageable pageable, @RequestParam(required = false) String busca) {        
         Page<Despesa> page = (busca == null) ? repo.findAll(pageable) : repo.findByDescricaoContaining(busca, pageable);
 
         return assembler.toModel(page);
     }
 
     @GetMapping("{id}")
+    @Operation(summary = "Cadastrar uma despesa para o usuário autenticado.")
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200", 
+            description = "Despesa cadastrada com sucesso!"
+        ),
+        @ApiResponse(
+            responseCode = "400", 
+            description = "Houve um erro no cadastro da despesa!"
+        )
+    })
     public EntityModel<Despesa> show(@PathVariable Long id) {
         log.info("buscar despesa com id: " + id);
 

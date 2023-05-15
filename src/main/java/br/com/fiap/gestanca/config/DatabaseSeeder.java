@@ -7,8 +7,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
-import br.com.fiap.gestanca.controllers.UsuarioController;
 import br.com.fiap.gestanca.models.Conta;
 import br.com.fiap.gestanca.models.Despesa;
 import br.com.fiap.gestanca.models.Usuario;
@@ -27,6 +27,9 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     @Autowired
     UsuarioRepository repoUsuario;
+
+    @Autowired
+    PasswordEncoder encoder;
     
     @Override
     public void run(String... args) throws Exception {
@@ -61,6 +64,6 @@ public class DatabaseSeeder implements CommandLineRunner {
             Despesa.builder().valor(new BigDecimal(800)).data(LocalDate.now()).descricao("Aluguel").conta(c8).build()
         ));
 
-        repoUsuario.save(Usuario.builder().nome("Gabriel Dias").email("gabrieldias@email.com").senha("1234567890").build());
+        repoUsuario.save(Usuario.builder().nome("Gabriel Dias").email("gabrieldias@email.com").senha(encoder.encode("1234567890")).build());
     }
 }

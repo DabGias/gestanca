@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import br.com.fiap.gestanca.models.Usuario;
 import br.com.fiap.gestanca.repositories.UsuarioRepository;
 import br.com.fiap.gestanca.service.TokenService;
 import jakarta.servlet.FilterChain;
@@ -27,14 +28,30 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = request.getHeader("Authorization") == null ? null : request.getHeader("Authorization").replace("Bearer ", "");
+        String token = getToken(request);
+        System.out.println(token);
         
         if (token != null) {
-            Authentication auth = new UsernamePasswordAuthenticationToken(token, null, repo.findByEmail(token).orElseThrow(() -> new RuntimeException("Usuário não encontrado")).getAuthorities());
+            String email = tokenService.validar(token);
+
+            System.out.println(email);
+
+            Usuario user = repo.findByEmail(email).get();
+            Authentication auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
 
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
 
         filterChain.doFilter(request, response);  
+    }
+
+    private String getToken(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+
+        if (header == null || header.isEmpty() || !header.startsWith("Bearer ")) {
+            return null;
+        }
+
+        return header.replace("Bearer ", "");
     }
 }

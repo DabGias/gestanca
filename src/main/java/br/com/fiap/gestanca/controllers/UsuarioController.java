@@ -7,6 +7,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import br.com.fiap.gestanca.models.Credencial;
 import br.com.fiap.gestanca.models.Usuario;
@@ -14,6 +15,7 @@ import br.com.fiap.gestanca.repositories.UsuarioRepository;
 import br.com.fiap.gestanca.service.TokenService;
 import jakarta.validation.Valid;
 
+@RestController
 public class UsuarioController {
     @Autowired
     UsuarioRepository repo;
